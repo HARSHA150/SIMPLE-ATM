@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ATM Interface</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #ecf0f1;
+      padding: 20px;
+    }
+
+    .atm-container {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    }
+
+    h2 {
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background-color: #2980b9;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #1c6ea4;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 15px;
+      border-collapse: collapse;
+    }
+
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+
+    th, td {
+      padding: 8px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="atm-container">
+    <h2>ATM Interface</h2>
+
+    <!-- Login Section -->
+    <div id="loginSection">
+      <input type="text" id="userName" placeholder="Enter your name" />
+      <input type="password" id="userPin" placeholder="Enter PIN" />
+      <button onclick="login()">Submit</button>
+    </div>
+
+    <!-- Main ATM Section -->
+    <div id="atmSection" class="hidden">
+      <p>Welcome, <span id="displayName"></span></p>
+      <button onclick="checkBalance()">Check Balance</button>
+      <button onclick="addMoney()">Add Money</button>
+      <button onclick="takeMoney()">Withdraw Money</button>
+      <button onclick="showReceipt()">Show Receipt</button>
+      <button onclick="logout()">Exit</button>
+
+      <!-- Transaction History -->
+      <table id="transactionTable">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    let balance = 100000;
+    const correctPin = "1234";
+    const transactions = [];
+
+    function login() {
+      const name = document.getElementById("userName").value;
+      const pin = document.getElementById("userPin").value;
+
+      if (pin === correctPin && name.trim() !== "") {
+        document.getElementById("displayName").textContent = name;
+        document.getElementById("loginSection").classList.add("hidden");
+        document.getElementById("atmSection").classList.remove("hidden");
+      } else {
+        alert("Incorrect PIN or name is empty.");
+      }
+    }
+
+    function checkBalance() {
+      alert("Current Balance: ₹" + balance);
+    }
+
+    function addMoney() {
+      const amount = prompt("Enter amount to deposit:");
+      const amt = parseFloat(amount);
+      if (!isNaN(amt) && amt > 0) {
+        balance += amt;
+        transactions.push({ type: "Credit", amount: amt });
+        updateTable();
+        alert("₹" + amt + " added successfully.");
+      } else {
+        alert("Invalid amount.");
+      }
+    }
+
+    function takeMoney() {
+      const amount = prompt("Enter amount to withdraw:");
+      const amt = parseFloat(amount);
+      if (!isNaN(amt) && amt > 0) {
+        if (amt <= balance) {
+          balance -= amt;
+          transactions.push({ type: "Debit", amount: amt });
+          updateTable();
+          alert("₹" + amt + " withdrawn successfully.");
+        } else {
+          alert("Insufficient balance.");
+        }
+      } else {
+        alert("Invalid amount.");
+      }
+    }
+
+    function showReceipt() {
+      let receipt = "----- ATM Receipt -----\n";
+      receipt += "Name: " + document.getElementById("displayName").textContent + "\n";
+      receipt += "Balance: ₹" + balance + "\n";
+      receipt += "Transactions:\n";
+      transactions.forEach(t => {
+        receipt += `${t.type}: ₹${t.amount}\n`;
+      });
+      alert(receipt);
+    }
+
+    function updateTable() {
+      const tbody = document.querySelector("#transactionTable tbody");
+      tbody.innerHTML = "";
+      transactions.forEach(t => {
+        const row = `<tr><td>${t.type}</td><td>₹${t.amount}</td></tr>`;
+        tbody.innerHTML += row;
+      });
+    }
+
+    function logout() {
+      location.reload();
+    }
+  </script>
+</body>
+</html>
